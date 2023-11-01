@@ -320,6 +320,11 @@ class TAGE_SC_L_LoopPredictor(LoopPredictor):
     initialLoopAge = 7
     optionalAgeReset = False
 
+class PerceptronBP(BranchPredictor):
+    type = 'PerceptronBP'
+    cxx_class  = 'PerceptronBP'
+    cxx_header = "cpu/pred/perceptron.hh"
+
 class StatisticalCorrector(SimObject):
     type = 'StatisticalCorrector'
     cxx_class  = 'StatisticalCorrector'
