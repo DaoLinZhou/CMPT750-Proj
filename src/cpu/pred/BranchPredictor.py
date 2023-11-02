@@ -75,6 +75,18 @@ class LocalBP(BranchPredictor):
     localPredictorSize = Param.Unsigned(2048, "Size of local predictor")
     localCtrBits = Param.Unsigned(2, "Bits per counter")
 
+class AlwaysTakenBP(BranchPredictor):
+    type = 'AlwaysTakenBP'
+    cxx_class = 'AlwaysTakenBP'
+    cxx_header = "cpu/pred/always_taken.hh"
+
+class PerceptronBP(BranchPredictor):
+    type = 'PerceptronBP'
+    cxx_class = 'PerceptronBP'
+    cxx_header = "cpu/pred/perceptron.hh"
+
+    tableSize = Param.Unsigned(2048, "Size of perceptron table")
+
 
 class TournamentBP(BranchPredictor):
     type = 'TournamentBP'
