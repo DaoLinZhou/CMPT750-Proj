@@ -62,14 +62,13 @@ PerceptronBP::squash(ThreadID tid, void *bpHistory)
 bool
 PerceptronBP::lookup(ThreadID tid, Addr branchAddr, void * &bpHistory)
 {
-    std::cout << "Lookup" << std::endl;
     unsigned perceptronIndex = (branchAddr << instShiftAmt) & historyRegisterMask;
     assert(perceptronIndex < tableSize);
 
     Perceptron perceptron = perceptronTable[perceptronIndex];
     signed product = perceptron.weights[0]; // Initialize the product to the bias weight
 
-    for(unsigned i=1, mask = 1; i<historyBits; i++, mask<<=1) {
+    for(unsigned i=1, mask=1; i<historyBits; i++, mask<<=1) {
         if(globalHistoryReg[tid] & mask) {
             // If the GHR entry was taken (1), add the weight
             product += perceptron.weights[i];
@@ -81,7 +80,7 @@ PerceptronBP::lookup(ThreadID tid, Addr branchAddr, void * &bpHistory)
     }
 
     //TODO: Implement Debugging Support
-    //DPRINTF("Perceptron Entry %d, calculated product %d", perceptronIndex, product);
+    //std::cout << "Perceptron Entry " << perceptronIndex <<", calculated product " << product << std::endl;
     uint8_t prediction = product >= 0;
 
     BPHistory *history = new BPHistory;
@@ -98,9 +97,7 @@ PerceptronBP::lookup(ThreadID tid, Addr branchAddr, void * &bpHistory)
 void
 PerceptronBP::btbUpdate(ThreadID tid, Addr branchAddr, void * &bpHistory)
 {
-    std::cout << "btbUpdate" << std::endl;
     globalHistoryReg[tid] &= (historyRegisterMask & ~ULL(1));
-    std::cout << "End btbUpdate" << std::endl;
 }
 
 
@@ -116,7 +113,6 @@ PerceptronBP::update(ThreadID tid, Addr branchAddr, bool taken, void *bpHistory,
     // We just restore the global history register.
     if (squashed) {
         globalHistoryReg[tid] = (history->globalHistoryReg << 1) | taken;
-        std::cout << "Squashed End Update" << std::endl;
         return;
     }
 
@@ -124,24 +120,27 @@ PerceptronBP::update(ThreadID tid, Addr branchAddr, bool taken, void *bpHistory,
 
     if((history->product >= threshold && taken) || (history->product <= threshold && !taken)) {
         // If the product is >= or <= threshold and prediction was correct, no need to update weights
-        std::cout << "Threshold End Update" << std::endl;
         return;
     }
 
-    std::cout << "percentron index = " << history->perceptronIndex << std::endl;
-    for (unsigned i=0, mask=1; i<historyBits; i++, mask<<=1) {
+    Perceptron *perc = &perceptronTable[history->perceptronIndex];
+
+    // Update bias weight based on taken
+    perc->weights[0] = taken ? perc->weights[0]+1 : perc->weights[0]-1;
+    clamp(perc->weights[0]);
+
+    for (unsigned i=1, mask=1; i<historyBits; i++, mask<<=1) {
         // A common trick to convert to boolean => !!x is 1 iff x is not zero, in this case history is 
         // positively correlated with branch outcome (Taken from Jimenez et. al ChampSim implementation)
         if (!!(history->globalHistoryReg & mask) == taken) { 
-            perceptronTable[history->perceptronIndex].weights[i]++;
+            perc->weights[i] = perc->weights[i] + 1;
         } else {
-            perceptronTable[history->perceptronIndex].weights[i]--;
+            perc->weights[i] = perc->weights[i] - 1;
         }
-        clamp(perceptronTable[history->perceptronIndex].weights[i]);
+        clamp(perc->weights[i]);
     }
 
     delete history;
-    std::cout << "End Update" << std::endl;
     return;
 }
 
