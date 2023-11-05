@@ -325,6 +325,12 @@ class PerceptronBP(BranchPredictor):
     cxx_class  = 'PerceptronBP'
     cxx_header = "cpu/pred/perceptron.hh"
 
+    globalHistorySize = Param.Unsigned(64, "Global history size")
+    perceptronTableSize = Param.Unsigned(1024, "Perceptron Table size")
+    minWeight = Param.Int(4, "Min weight")
+    maxWeight = Param.Int(1024, "Max weight")
+    threshold = Param.Unsigned(64, "Threshold")
+
 class StatisticalCorrector(SimObject):
     type = 'StatisticalCorrector'
     cxx_class  = 'StatisticalCorrector'
