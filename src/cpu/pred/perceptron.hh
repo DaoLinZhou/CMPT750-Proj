@@ -31,6 +31,9 @@ struct GHR{
         threadGlobalHistory[startPoint] = value;
         startPoint = (startPoint + 1) % threadGlobalHistory.size();
     }
+    inline void Pop(){
+        startPoint = (startPoint - 1 + threadGlobalHistory.size()) % threadGlobalHistory.size();;
+    }
     inline uint32_t Size() const { return threadGlobalHistory.size(); }
 };
 

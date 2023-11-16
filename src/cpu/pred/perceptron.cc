@@ -38,8 +38,9 @@ PerceptronBP::update(ThreadID tid, Addr branch_pc, bool taken, void* bp_history,
     auto& globalHistory = globalHistoryReg[tid];
     auto& preceptron = preceptronTable[tid][history->perceptronIndex];
     
-    globalHistory.PushBack(taken);
     if(squashed){
+        globalHistory = history->globalHistory;
+        globalHistory.PushBack(taken);
         return;
     }
     preceptron.Backword(history->globalHistory, history->perceptronOutput, history->taken, taken);
@@ -65,7 +66,9 @@ PerceptronBP::lookup(ThreadID tid, Addr branch_pc, void* &bp_history)
     
     bool taken = predictResult >= 0;
     BPHistory *history = new BPHistory(taken, perceptronIndex, predictResult, globalHistoryReg[tid]);
+    auto& globalHistory = globalHistoryReg[tid];
     bp_history = static_cast<void*>(history);
+    globalHistory.PushBack(taken);
 
     return taken;
 }
