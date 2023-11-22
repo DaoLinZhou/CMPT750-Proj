@@ -71,6 +71,7 @@
 #include "sim/full_system.hh"
 #include "sim/system.hh"
 #include "cpu/o3/isa_specific.hh"
+#include "cpu/pred/bpred_unit.hh"
 
 using namespace std;
 
@@ -1221,12 +1222,14 @@ DefaultFetch<Impl>::fetch(bool &status_change)
 
     const unsigned numInsts = fetchBufferSize / instSize;
     unsigned blkOffset = (fetchAddr - fetchBufferPC[tid]) / instSize;
+    int32_t confidence = MAX_CONFIDENCE;
+    printf("\tConfidence = %d", confidence);
 
     // Loop through instruction memory from the cache.
     // Keep issuing while fetchWidth is available and branch is not
     // predicted taken
-    while (numInst < fetchWidth && fetchQueue[tid].size() < fetchQueueSize
-           && !predictedBranch && !quiesce) {
+    while (numInst < fetchWidth && fetchQueue[tid].size() < fetchQueueSize  //TODO: Branch Prediction Confidence
+           && !predictedBranch && (confidence < -2 || 2 < confidence) && !quiesce) {
         // We need to process more memory if we aren't going to get a
         // StaticInst from the rom, the current macroop, or what's already
         // in the decoder.
@@ -1316,6 +1319,12 @@ DefaultFetch<Impl>::fetch(bool &status_change)
                 DPRINTF(Fetch, "Branch detected with PC = %s\n", thisPC);
             }
 
+            // If we're branching but confidence is low, quit fetching
+            if(thisPC.branching()) {
+                printf("\tConfidence = %d", confidence);
+                confidence = branchPred->getConfidence(tid, nextPC.instAddr());
+            }
+
             newMacro |= thisPC.instAddr() != nextPC.instAddr();
 
             // Move to the next instruction, unless we have a branch.
@@ -1349,6 +1358,9 @@ DefaultFetch<Impl>::fetch(bool &status_change)
     if (predictedBranch) {
         DPRINTF(Fetch, "[tid:%i] Done fetching, predicted branch "
                 "instruction encountered.\n", tid);
+    } else if (-2 < confidence && confidence < 2) {
+        DPRINTF(Fetch, "[tid:%i] Done fetching, predicted branch "
+                "low confidence.\n", tid);
     } else if (numInst >= fetchWidth) {
         DPRINTF(Fetch, "[tid:%i] Done fetching, reached fetch bandwidth "
                 "for this cycle.\n", tid);

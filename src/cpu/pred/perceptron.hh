@@ -123,6 +123,7 @@ public:
     void update(ThreadID tid, Addr branch_addr, bool taken, void *bp_history,
                 bool squashed, const StaticInstPtr & inst,
                 Addr corrTarget) override;
+    int confidence(ThreadID tid, Addr branch_addr) override;
     virtual void squash(ThreadID tid, void *bp_history) override;
 };
 

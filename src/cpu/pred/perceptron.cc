@@ -73,6 +73,14 @@ PerceptronBP::lookup(ThreadID tid, Addr branch_pc, void* &bp_history)
     return taken;
 }
 
+int
+PerceptronBP::confidence(ThreadID tid, Addr branch_pc) {
+    auto& ptable = preceptronTable[tid];
+    auto perceptronIndex = (branch_pc >> instShiftAmt) % tableSize;
+    auto& model = ptable[perceptronIndex];
+    return model.Forward(globalHistoryReg[tid]);
+}
+
 void
 PerceptronBP::btbUpdate(ThreadID tid, Addr branch_pc, void* &bp_history)
 {

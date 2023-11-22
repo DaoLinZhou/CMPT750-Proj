@@ -112,6 +112,16 @@ BPredUnit::drainSanityCheck() const
         assert(ph.empty());
 }
 
+int
+BPredUnit::getConfidence(ThreadID tid, Addr branch_addr) {
+    return confidence(tid, branch_addr);
+}
+
+int
+BPredUnit::confidence(ThreadID tid, Addr instPC) {
+    return 0;
+}
+
 bool
 BPredUnit::predict(const StaticInstPtr &inst, const InstSeqNum &seqNum,
                    TheISA::PCState &pc, ThreadID tid)
@@ -129,6 +139,7 @@ BPredUnit::predict(const StaticInstPtr &inst, const InstSeqNum &seqNum,
 
     void *bp_history = NULL;
     void *indirect_history = NULL;
+    int32_t confidence = MAX_CONFIDENCE;
 
     if (inst->isUncondCtrl()) {
         DPRINTF(Branch, "[tid:%i] [sn:%llu] "
@@ -139,6 +150,7 @@ BPredUnit::predict(const StaticInstPtr &inst, const InstSeqNum &seqNum,
         uncondBranch(tid, pc.instAddr(), bp_history);
     } else {
         ++stats.condPredicted;
+        confidence = getConfidence(tid, pc.instAddr());
         pred_taken = lookup(tid, pc.instAddr(), bp_history);
 
         DPRINTF(Branch, "[tid:%i] [sn:%llu] "

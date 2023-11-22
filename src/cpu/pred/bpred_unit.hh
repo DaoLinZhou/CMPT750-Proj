@@ -55,6 +55,8 @@
 #include "sim/probe/pmu.hh"
 #include "sim/sim_object.hh"
 
+#define MAX_CONFIDENCE 128
+
 /**
  * Basically a wrapper class to hold both the branch predictor
  * and the BTB.
@@ -72,6 +74,10 @@ class BPredUnit : public SimObject
 
     /** Perform sanity checks after a drain. */
     void drainSanityCheck() const;
+
+    int getConfidence(ThreadID tid, Addr branch_addr);
+
+    virtual int confidence(ThreadID tid, Addr instPC);
 
     /**
      * Predicts whether or not the instruction is a taken branch, and the
