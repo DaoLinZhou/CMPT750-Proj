@@ -42,12 +42,12 @@ struct Perceptron{
     std::vector<int32_t> weights;
     int32_t minWeight;
     int32_t maxWeight;
-    uint32_t threshold;
+    int32_t threshold;
 
     Perceptron() = default;
     Perceptron(Perceptron&) = default;
 
-    void Init(uint32_t size, int32_t minWeight_, int32_t maxWeight_, uint32_t threshold_)
+    void Init(uint32_t size, int32_t minWeight_, int32_t maxWeight_, int32_t threshold_)
     {
         bias = 1;
         weights = std::vector<int32_t>(size, 0);

@@ -329,7 +329,23 @@ class PerceptronBP(BranchPredictor):
     perceptronTableSize = Param.Unsigned(1024, "Perceptron Table size")
     minWeight = Param.Int(4, "Min weight")
     maxWeight = Param.Int(1024, "Max weight")
-    threshold = Param.Unsigned(64, "Threshold")
+    threshold = Param.Int(64, "Threshold")
+
+class PerceptronForestBP(BranchPredictor):
+    type = 'PerceptronForestBP'
+    cxx_class  = 'PerceptronForestBP'
+    cxx_header = "cpu/pred/perceptronForest.hh"
+
+    globalHistorySize = Param.Unsigned(64, "Global history size")
+    perceptronTableSize = Param.Unsigned(1024, "Perceptron Table size")
+    perceptronNum = Param.Unsigned(10, "Perceptron number")
+    minWeight = Param.Int(-1024, "Min weight")
+    maxWeight = Param.Int(1024, "Max weight")
+
+class NotTaken(BranchPredictor):
+    type = 'NotTaken'
+    cxx_class  = 'NotTaken'
+    cxx_header = "cpu/pred/always_not_taken.hh"
 
 class StatisticalCorrector(SimObject):
     type = 'StatisticalCorrector'
