@@ -36,14 +36,15 @@ PerceptronForestBP::update(ThreadID tid, Addr branch_pc, bool taken, void* bp_hi
   auto& preceptron = preceptronTable[tid][history->perceptronIndex];
 
   // FIXME(jiatang)
-  globalHistory.PushBack(taken);
+  // globalHistory.PushBack(taken);
 
   if(squashed){
     globalHistory = history->globalHistory;
-//    globalHistory.PushBack(taken);
+    globalHistory.PushBack(taken);
     return;
   }
   preceptron.Backward(history->globalHistory, history->perceptronOutput, taken);
+  delete history;
 }
 
 void
@@ -70,7 +71,7 @@ PerceptronForestBP::lookup(ThreadID tid, Addr branch_pc, void* &bp_history)
   auto& globalHistory = globalHistoryReg[tid];
   bp_history = static_cast<void*>(history);
   // FIXME(jiatang)
-//  globalHistory.PushBack(taken);
+  globalHistory.PushBack(taken);
 
   return taken;
 }
