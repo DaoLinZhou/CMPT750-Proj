@@ -19,7 +19,7 @@ PerceptronForestBP::PerceptronForestBP(const PerceptronForestBPParams *params):
   for(auto& table: preceptronTable){
     table = new PerceptronForest[params->perceptronTableSize];
     for(uint32_t i = 0; i < params->perceptronTableSize; i++){
-      table[i].Init(params->globalHistorySize, params->perceptronNum, params->minWeight, params->maxWeight);
+      table[i].Init(params->globalHistorySize, params->perceptronNum, params->minWeight, params->maxWeight, params->avgPerceptronLength);
     }
   }
 }

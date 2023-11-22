@@ -123,18 +123,18 @@ public:
     return out;
   }
 
-  inline void Init(uint32_t historySize, uint32_t perceptronNum, int32_t minWeight_, int32_t maxWeight_){
+  inline void Init(uint32_t historySize, uint32_t perceptronNum, int32_t minWeight_, int32_t maxWeight_, uint32_t averageLength){
     range = std::vector<std::pair<uint32_t, uint32_t>>(perceptronNum);
     weights = std::vector<int32_t>(perceptronNum);
     std::random_device rd;      // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());
     std::geometric_distribution<uint32_t> distrib(0.3);
-    std::uniform_int_distribution<uint32_t> udistrib(0, historySize);
+    std::uniform_int_distribution<uint32_t> udistrib(0, averageLength+averageLength);
     std::set<std::pair<uint32_t, uint32_t>> counter;
     for(uint32_t i = 0; i < perceptronNum; i++){
       uint32_t offset = std::min(distrib(gen), historySize/2);
       uint32_t endPoint = historySize - offset;
-      uint32_t startPoint = udistrib(gen) % endPoint;
+      uint32_t startPoint = endPoint - std::min(udistrib(gen), endPoint);
       range[i] = {startPoint, endPoint};
     }
 

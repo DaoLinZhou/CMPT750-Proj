@@ -341,6 +341,7 @@ class PerceptronForestBP(BranchPredictor):
     perceptronNum = Param.Unsigned(10, "Perceptron number")
     minWeight = Param.Int(-1024, "Min weight")
     maxWeight = Param.Int(1024, "Max weight")
+    avgPerceptronLength = Param.Unsigned(14, "Avg Perceptron Size")
 
 class NotTaken(BranchPredictor):
     type = 'NotTaken'
